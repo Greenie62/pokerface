@@ -47,6 +47,7 @@ let playBtn=document.querySelector(".playBtn");
 let playBtnDiv=document.querySelector(".playDiv")
 let foldBtn=document.querySelector(".foldBtn");
 let tradeBtn=document.querySelector(".tradeBtn")
+let playHandBtn=document.querySelector(".playHandBtn")
 let playersHandDiv=document.querySelector(".playersHandDiv")
 let cardsEl=""
 let playersHand=document.querySelector(".playersHandRow")
@@ -56,6 +57,10 @@ let playersHand=document.querySelector(".playersHandRow")
 playBtn.onclick=startGame;
 
 foldBtn.onclick=foldGame;
+playHandBtn.onclick=()=>{
+    console.log("playHandBtn fired")
+    checkGame();
+}
 
 
 function foldGame(){
@@ -271,130 +276,177 @@ function tradeCards(){
 
     function checkGame(){
      
-     
+        if(cardsEl === ""){
+            console.log("cardEl got populated....we assume player playedHand without trading")
+        cardsEl=document.querySelectorAll(".card")
+        }
         console.log(cardsEl)
         var families=[];
         var values=[];
+        
+        //hard to compare with families, so we'll grab data-tracker attribute
+        var straightArray=[];
         Array.from(cardsEl).forEach(c=>{
             // console.log(c.innerText.split(""))
             values.push(c.innerText.split("")[2])
             families.push(c.innerText.split("")[0])
+            straightArray.push(c.getAttribute('data-tracker'))
         })
         console.log(values)
         console.log(families)
 
         //run these in order with a way to break out upon finding, test two pairs before threeFour(fourOfKind/2 pair will look the same with my logic)
         
-        var {hand} = oneTwoPairFH(values);
-        if(!hand){
-            console.log("Bumped down to threeFourAKind()")
-            var {hand} = threeFourAKind(values);
-        }
+    
+            var {hand} = threeFourAKind(values,straightArray);
+            var {flush} = checkFlush(families)
+            var {straight}=checkStraight(straightArray)
+        
         
         // flush(families);
       
         setTimeout(()=>{
        
-        gameOver(hand)
+        gameOver({straight,flush,hand})
         },2000);
     
     }
 
 
-    function gameOver(hand){
-        messagesDOM.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-evenly:flex-direction:column">
-                                <h5>Players hand was a ${hand}</h5>
+    function gameOver(straight,flush,hand){
+        console.log(straight)
+        console.log(straight.flush)
+        console.log(straight.hand)
+
+        if (straight.straight.hand != ""){
+            messagesDOM.innerHTML=`<div class='gameOverDiv'>
+                                    <h5>Players hand was a ${straight.straight.hand}</h5>
+                                     <button class="playagainbtn" onclick=playAgain()>Play Again</button>
+                                     </div>`
+            }
+        else if (straight.flush.hand != ""){
+        messagesDOM.innerHTML=`<div class='gameOverDiv'>
+                                <h5>Players hand was a ${straight.flush.hand}</h5>
                                  <button class="playagainbtn" onclick=playAgain()>Play Again</button>
                                  </div>`
+        }
+        else{
+            messagesDOM.innerHTML=`<div class='gameOverDiv'>
+            <h5>Players hand was a ${straight.hand.hand}</h5>
+             <button class="playagainbtn" onclick=playAgain()>Play Again</button>
+             </div>`
+        }
     }
 
 
     function playAgain(){
-        messagesDOM.innerHTML=""
-        shuffled=cards.sort(()=>Math.random()-.5);
-        console.log(shuffled)
-        dealCards()
+        // messagesDOM.innerHTML=""
+        // shuffled=cards.sort(()=>Math.random()-.5);
+        // console.log(shuffled)
+        // dealCards()
+        window.location.reload()
     }
 
 
-    function threeFourAKind(values){
-        let reduce=[...new Set([...values])]
-
-        console.log(reduce)
+    function threeFourAKind(values,straightArray){
+        let hand={}
         console.log(values)
-        if(reduce.length === 3){
-            console.log("Player has three of kind!")
-            return {hand:"Three of a kind"}
-        }
+        hand.hand=`a high card of ${Math.max(...straightArray)}`
+        let cardVal=""
+        values.forEach((num,idx)=>{
+            let counter=0;
+            values.forEach(check=>{
+                if(num === check){
+                    counter++
+                    cardVal=num
+                }
+            })
+            console.log("Counter: " + counter)
+            if(counter == 2){
+                console.log("A PAIR")
+                hand.hand=`a pair of ${cardVal}s`
+            }
+            else if(counter == 4){
+                console.log("FOUR OF A KIND")
+                hand.hand="Four of a kind"
+            }
+            else if(counter == 3){
+                console.log ("THREE OF A KIND")
+                hand.hand="Three of a kind"
+            }
 
-        if(reduce.length === 2){
-            console.log("Player has four of kind!")
-            return {hand:"Four of a kind"}
-        }
-        if(reduce.length === 5){
-            console.log("nada!")
-            return {hand:"a big nothing!"}
-        }
+         
+        })
+         return {hand}
+
+     
     }
 
 
-
-    //threeFourAKind([1,1,1,1,5])
-
-
-    function oneTwoPairFH(values){
-        let reduce=[...new Set([...values])];
-
-        if(reduce.length === 2){
-            let numOne=reduce[0];
-            let numTwo=reduce[1];
-            console.log("NumOne: " + numOne)
-            console.log("NumTwo: " + numTwo)
-            let numOneCounter=0;
-            let numTwoCounter=0;
-
-            //test to see if a counter hits 3, if it does, then full house
-            for(let i=0;i<values.length;i++){
-              
-                if(values[i] === +numOne){
-                    numOneCounter++
+    function checkFlush(values){
+        console.log("checkFlush() fired")
+        console.log(values)
+        let count=0;
+        let flush={};
+        flush.hand=""
+        let compare=values[0]
+        values.forEach(v=>{
+                if(v === compare){
+                    count++
                 }
-
-                if(values[i] === numTwo){
-                    numTwoCounter++
-                }
-            }
-            console.log("NumOneCounter: " + numOneCounter)
-            console.log("NumTwoCounter: " + numTwoCounter)
-            if(numOneCounter ===  3 || numTwoCounter === 3){
-
+            })
+            console.log("Count: " + count)
+            if(count === 5){
+                console.log ("FLUSH!")
+                flush.hand="A flush"
             
-            //protect against 4 of a kind
-            if(numOne != numTwo){
-                console.log("Full house!!")
-                return{hand:"Full house"}
                 
             }
-        }
-        }
-
-        if(reduce.length === 3){
-            //parse n compare numbers still...
-            console.log("Player has two pair!")
-            console.log(reduce)
-            console.log(values)
-            return {hand:"Two pair"}
-
-        }
-
-        if(reduce.length === 4){
-            console.log("One pair!")
-            return {hand:"One pair"}
-        }
-
-        console.log("nada")
-        return {hand:"a big nothing!"}
-
+            
+        return {flush}
     }
 
-    //oneTwoPairFH([9,5,7,7,8])
+
+    function checkStraight(values){
+        values=values.sort((a,b)=>a-b);
+        let straight={};
+        console.log(values);
+        straight.hand=""
+       
+
+        var winningCombos=[
+            [2,3,4,5,6],
+            [3,4,5,6,7],
+            [4,5,6,7,8],
+            [5,6,7,8,9],
+            [6,7,8,9,10],
+            [7,8,9,10,11],
+            [8,9,10,11,12],
+            [9,10,11,12,13],
+            [10,11,12,13,14],
+        ]
+
+        winningCombos.forEach(combo=>{
+            let counter=0;
+            combo.forEach((num,idx)=>{
+                if(num === values[idx]){
+                    counter++
+                }
+            })
+            if(counter === 5){
+                console.log("We got a straight!!")
+                straight.hand="A straight"
+            }
+        })
+        console.log("you aint got shit")
+
+        return {straight}
+    }
+
+     checkStraight([4,2,3,5,6])
+
+
+
+    
+
+    // checkFlush(['♥' ,'♥' ,'♥' ,'♥' ,'♥' ])
