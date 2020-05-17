@@ -1,0 +1,156 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    position:relative;
+}
+
+header, footer{
+    text-align:center;
+}
+
+footer{
+    background:red;
+    text-transform:uppercase;
+    letter-spacing:2px;
+}
+
+header > h1{
+    background:red;
+    border-radius:1rem;
+}
+
+.gamearea{
+    height:50vh;
+    /* background:rgb(41, 100, 41) */
+    background:green
+}
+
+.dealerDiv{
+    border-radius:50%;
+    border-bottom:10px solid white;
+    height:200px;
+    top:-75px;
+}
+
+.dealerh3{
+    color:white;
+    position:absolute;
+    top:50%;
+    left:25%;
+    transform:rotate(180deg);
+    letter-spacing:10px;
+}
+
+
+
+
+
+.playDiv, .playersHandDiv, .messageToPlayer{
+    position:absolute;
+    /* outline:1px solid black; */
+    width:200px;
+    height:200px;
+    left:25%;
+    top:25%;
+}
+
+.messageToPlayer{
+    height:50px;
+}
+
+.message{
+    background:lightgray;
+    border-radius:1rem;
+    padding:1rem;
+}
+
+.playersHandDiv{
+    top:500px;
+    transition:2s ease;
+}
+
+.show-playersHand{
+    top:65%;
+}
+
+.playDiv{
+    background-image:url("./assets/pokerimg.jpg");
+    border-radius:10%;
+    border:2px solid red;
+    transition:1s ease;
+}
+
+.playBtn{
+    left:25%;
+    top:35%;
+    font-size:20px;
+    width:125px;
+    background:green;
+    opacity:.7;
+    cursor:pointer;
+}
+
+.playBtn:hover{
+    text-decoration:underline;
+}
+
+.playersHandDiv{
+    width:90%;
+    left:5%;
+}
+
+
+.playersHandRow{
+    display:flex;
+}
+
+.playerButtonRow{
+    display:flex;
+    align-items:center;
+    justify-content: space-evenly;
+    margin-top:15px;
+}
+
+.foldBtn, .tradeBtn{
+        font-size:18px;
+        color:black;
+        border:1px solid black;
+}
+
+.foldBtn{
+    background:rgb(255,0,0)
+}
+
+.hide-tradeBtn{
+    display:none;
+}
+
+
+.card{
+    flex:1;
+    border:1px solid black;
+    border-radius:5%;
+    display:flex;
+    align-items:flex-start;
+    justify-content: space-between;
+    background:white;
+    opacity:.9;
+    transition:1s;
+}
+
+.remove_card{
+    animation:removecard 2s forwards;
+}
+
+@keyframes removecard{
+    0%{top:-100px}
+    100%{top:-100px;left:1000px}
+}
+
+
+.selected_card{
+    background:lightgray;
+    box-shadow:0 0 2px 5px rgb(0,0,0,.5);
+}
+
